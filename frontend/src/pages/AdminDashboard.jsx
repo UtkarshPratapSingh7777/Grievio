@@ -59,7 +59,15 @@ const AdminDashboard = () => {
       setLoading(false);
     }
   };
-
+  const filteredComplaints = complaints.filter((complaint) => {
+    const matchesSearch =
+      complaint.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      complaint.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      complaint.ticketId.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter =
+      filterStatus === "all" || complaint.status === filterStatus;
+    return matchesSearch && matchesFilter;
+  });
   const fetchStaff = async () => {
     try {
       const response = await axios.get(
@@ -96,22 +104,17 @@ const AdminDashboard = () => {
         return <AlertCircle className="w-5 h-5 text-gray-500" />;
     }
   };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "resolved-stafflevel":
-      case "resolved-adminlevel":
-        return "bg-green-100 text-green-800";
-      case "in-progress":
-        return "bg-blue-100 text-blue-800";
-      case "open":
-        return "bg-red-100 text-yellow-800";
-      case "escalated":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+const getDeptLabel = (dept) => {
+    const labels = {
+      roads: "Roads",
+      water: "Water Supply",
+      waste: "Waste Management",
+      electricity: "Electricity",
+      other: "Other",
+    };
+    return labels[dept] || dept;
   };
+ 
 
   const getStatusLabel = (status) => {
     const labels = {
@@ -189,6 +192,16 @@ const AdminDashboard = () => {
       />
     );
   }
+  const getDeptLabel = (dept) => {
+    const labels = {
+      roads: "Roads",
+      water: "Water Supply",
+      waste: "Waste Management",
+      electricity: "Electricity",
+      other: "Other",
+    };
+    return labels[dept] || dept;
+  };
   if (currentView === "view-complaint" && selectedComplaint) {
     return (
       <ComplaintVerificationPage
