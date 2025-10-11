@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Bell,
   Plus,
@@ -13,22 +13,23 @@ import {
   ArrowLeft,
   Upload,
   X,
+  Activity,
   MessageSquare,
   Calendar,
   User,
 } from "lucide-react";
 import axios from "axios";
 
-const CitizenDashboard = () => { 
-  const location = useLocation();  
-  const navigate = useNavigate();  
-  const userData = location.state?.userData; 
+const CitizenDashboard = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const userData = location.state?.userData;
 
   const [currentView, setCurrentView] = useState("dashboard");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedComplaint, setSelectedComplaint] = useState(null);
-  
+
   const [complaints, setComplaints] = useState([]);
   useEffect(() => {
     const fetchComplaints = async () => {
@@ -41,7 +42,7 @@ const CitizenDashboard = () => {
             },
           }
         );
-        
+
         setComplaints(response.data.complaints);
       } catch (error) {
         console.error("Error fetching complaints:", error);
@@ -117,10 +118,13 @@ const CitizenDashboard = () => {
       case "low":
         return "bg-green-50 text-green-700 border-green-200";
       default:
-        return "bg-gray-50 text-gray-700 border-gray-200";
+        return "bg-gray-50 text-white border-gray-200";
     }
   };
-
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
   const filteredComplaints = complaints.filter((complaint) => {
     const matchesSearch =
       complaint.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -172,9 +176,8 @@ const CitizenDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
-      {/* Header */}
-      <header className=" w-full bg-black/20 border-b border-white/10">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900">
+      <header className="w-full bg-black/20 backdrop-blur-lg border-b border-white/10 relative z-[60]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
@@ -187,26 +190,22 @@ const CitizenDashboard = () => {
                 </div>
               </div>
               <p className="text-sm text-blue-200 mt-1">
-                Welcome back, {userData.name}
+                Welcome back, {userData.name[0]+userData.name.slice(1).toLowerCase()}
               </p>
             </div>
             <div className="flex items-center space-x-4">
-              <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition">
-                <Bell className="w-6 h-6" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-              <div className="flex items-center space-x-3 bg-gray-100 rounded-lg px-4 py-2">
-                <User className="w-5 h-5 text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">
-                  {userData.citizenId}
+              <ActivityBell userType="citizen" />
+              <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-lg rounded-lg px-4 py-2 border border-white/20">
+                <User className="w-5 h-5 text-white" />
+                <span className="text-sm font-medium text-white">
+                  {userData?.name || "User"}
                 </span>
               </div>
               <button
-                type="button"
-                onClick={() => navigate("/")}
-                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 cursor-pointer"
+                onClick={handleLogout}
+                className="px-5 py-2.5 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition cursor-pointer"
               >
-                Back to Home
+                Logout
               </button>
             </div>
           </div>
@@ -214,92 +213,104 @@ const CitizenDashboard = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <div className="bg-gray-200 rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-sm p-6 border border-white/20">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-sm font-medium text-white/70">
                   Total Complaints
                 </p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
+                <p className="text-3xl font-bold text-white mt-2">
                   {stats.total}
                 </p>
               </div>
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <MessageSquare className="w-6 h-6 text-blue-600" />
+              <div className="bg-blue-500/20 p-3 rounded-lg">
+                <MessageSquare className="w-6 h-6 text-blue-300" />
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-200 rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-sm p-6 border border-white/20">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Open</p>
+                <p className="text-sm font-medium text-white/70">Open</p>
                 <p className="text-3xl font-bold text-yellow-600 mt-2">
                   {stats.open}
                 </p>
               </div>
-              <div className="bg-yellow-100 p-3 rounded-lg">
+              <div className="bg-blue-500/20 p-3 rounded-lg">
                 <AlertCircle className="w-6 h-6 text-yellow-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-200 rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-sm p-6 border border-white/20">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">In Progress</p>
-                <p className="text-3xl font-bold text-blue-600 mt-2">
+                <p className="text-sm font-medium text-white/70">In Progress</p>
+                <p className="text-3xl font-bold text-blue-400 mt-2">
                   {stats.inProgress}
                 </p>
               </div>
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <Clock className="w-6 h-6 text-blue-600" />
+              <div className="bg-blue-500/20 p-3 rounded-lg">
+                <Clock className="w-6 h-6 text-blue-300" />
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-200 rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-sm p-6 border border-white/20">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Resolved</p>
-                <p className="text-3xl font-bold text-green-600 mt-2">
+                <p className="text-sm font-medium text-white/70">Resolved</p>
+                <p className="text-3xl font-bold text-green-400 mt-2">
                   {stats.resolved}
                 </p>
               </div>
-              <div className="bg-green-100 p-3 rounded-lg">
-                <CheckCircle className="w-6 h-6 text-green-600" />
+              <div className="bg-green-500/20 p-3 rounded-lg">
+                <CheckCircle className="w-6 h-6 text-green-300" />
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-200 rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-sm p-6 border border-white/20">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Escalated</p>
+                <p className="text-sm font-medium text-white/70">Escalated</p>
                 <p className="text-3xl font-bold text-red-600 mt-2">
                   {stats.escalated}
                 </p>
               </div>
-              <div className="bg-red-100 p-3 rounded-lg">
+              <div className="bg-blue-500/20 p-3 rounded-lg">
                 <XCircle className="w-6 h-6 text-red-600" />
               </div>
             </div>
           </div>
         </div>
-
-        {/* Action Button and Filters */}
-        <div className="bg-gray-200 rounded-xl shadow-sm p-6 mb-6 border border-gray-100">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-sm p-6 mb-6 border  border-white/20">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-4">
+            
             <button
               onClick={() => setCurrentView("raise-complaint")}
-              className="inline-flex items-center hover:cursor-pointer justify-center px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold rounded-lg shadow-md hover:from-blue-700 hover:to-indigo-700 transition transform hover:scale-105"
+              className="inline-flex items-center hover:cursor-pointer justify-center w-full px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:from-blue-700 hover:to-indigo-700 transition transform hover:scale-105"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Have an issue or feedback? Raise a new complaint to get it resolved.
+            </button>
+          </div>
+        </div>
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-sm p-6 mb-6 border border-white/20">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            {/* <button
+              onClick={() => setCurrentView("raise-complaint")}
+              className="inline-flex items-center hover:cursor-pointer justify-center px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:from-blue-700 hover:to-indigo-700 transition transform hover:scale-105"
             >
               <Plus className="w-5 h-5 mr-2" />
               Raise New Complaint
-            </button>
-
+            </button> */}
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Activity className="w-6 h-6" />
+              My Complaints
+            </h2>
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1 sm:min-w-[300px]">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -308,34 +319,37 @@ const CitizenDashboard = () => {
                   placeholder="Search by ticket ID, title..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                 />
               </div>
 
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-2 border border-gray-300 hover:cursor-pointer rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent "
+                className="px-4 py-2 bg-white/10 border border-white/20 text-white rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent cursor-pointer"
               >
-                <option value="all">All Status</option>
-                <option value="open">Open</option>
-                <option value="in-progress">In Progress</option>
-                <option value="resolved-stafflevel">Resolved (Staff)</option>
-                <option value="resolved-adminlevel">Resolved (Admin)</option>
-                <option value="escalated">Escalated</option>
+                <option value="all" className="bg-gray-800">
+                  Status
+                </option>
+                <option value="open" className="bg-gray-800">
+                  Open
+                </option>
+                <option value="in-progress" className="bg-gray-800">
+                  In Progress
+                </option>
+                <option value="resolved-stafflevel" className="bg-gray-800">
+                  Resolved
+                </option>
               </select>
             </div>
           </div>
         </div>
 
-        {/* Complaints List */}
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-white mb-4">My Complaints</h2>
-
           {filteredComplaints.length === 0 ? (
-            <div className="bg-gray-200 rounded-xl shadow-sm p-12 text-center border border-gray-100">
-              <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-sm p-12 text-center border border-white/20">
+              <AlertCircle className="w-16 h-16 text-white/50 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-white mb-2">
                 No complaints found
               </h3>
               <p className="text-gray-600 mb-6">
@@ -346,7 +360,7 @@ const CitizenDashboard = () => {
               {!searchTerm && filterStatus === "all" && (
                 <button
                   onClick={() => setCurrentView("raise-complaint")}
-                  className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+                  className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition hover:cursor-pointer"
                 >
                   <Plus className="w-5 h-5 mr-2" />
                   Raise Your First Complaint
@@ -361,7 +375,7 @@ const CitizenDashboard = () => {
                   setSelectedComplaint(complaint);
                   setCurrentView("view-complaint");
                 }}
-                className="bg-gray-200 rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-lg transition cursor-pointer"
+                className="bg-white/10 backdrop-blur-lg rounded-xl shadow-sm p-6 border border-white/20 hover:bg-white/15 transition"
               >
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                   <div className="flex-1">
@@ -370,12 +384,12 @@ const CitizenDashboard = () => {
                         <img
                           src={complaint.photoUrl}
                           alt="Complaint"
-                          className="w-24 h-24 rounded-lg object-cover"
+                          className="w-24 h-24 rounded-lg object-cover border border-white/20"
                         />
                       )}
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <span className="text-sm font-mono font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+                          <span className="text-sm font-mono font-semibold text-blue-300 bg-blue-500/20 px-3 py-1 rounded-full border border-blue-400/30">
                             {complaint.ticketId}
                           </span>
                           <span
@@ -395,14 +409,14 @@ const CitizenDashboard = () => {
                           </span>
                         </div>
 
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">
+                        <h3 className="text-lg font-bold  text-white mb-2">
                           {complaint.title}
                         </h3>
-                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                        <p className="text-white/70 text-sm mb-3 line-clamp-2">
                           {complaint.description}
                         </p>
 
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-white/60">
                           <span className="inline-flex items-center gap-1">
                             <Filter className="w-4 h-4" />
                             {getDeptLabel(complaint.dept)}
@@ -446,8 +460,6 @@ const CitizenDashboard = () => {
     </div>
   );
 };
-
-// Raise Complaint Page Component
 const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
   const [formData, setFormData] = useState({
     title: "",
@@ -562,26 +574,31 @@ const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
     setIsSubmitting(true);
 
     try {
+      const payload = new FormData();
+      payload.append("title", formData.title);
+      payload.append("description", formData.description);
+      payload.append("dept", formData.dept);
+      payload.append("location", JSON.stringify(formData.location));
+      payload.append("priority", formData.priority);
+      payload.append("citizenId", userData.citizenId);
+      if (formData.photoUrl instanceof File) {
+        payload.append("photo", formData.photoUrl);
+      }
+
       const response = await axios.post(
         "http://localhost:3000/api/complaints/create",
-        {
-          title: formData.title,
-          description: formData.description,
-          dept: formData.dept,
-          location: formData.location,
-          priority: formData.priority,
-          citizenId: userData.citizenId,
-        },
+        payload,
         {
           headers: {
             Authorization: localStorage.getItem("token"),
+            "Content-Type": "multipart/form-data",
           },
         }
       );
       setComplaints((prev) => [...prev, response.data.complaint]);
       console.log("Complaint submitted:", response.data);
       alert("Complaint raised successfully!");
-      onBack(); // navigate back after success
+      onBack();
     } catch (error) {
       console.error("Error submitting complaint:", error);
       alert("Failed to submit complaint. Please try again.");
@@ -591,8 +608,7 @@ const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
-      {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900">
       <header className=" w-full bg-black/20 border-b border-white/10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
@@ -616,13 +632,13 @@ const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ">
         <form
+          // action="/api/complaints/create" method="post" enctype="multipart/form-data"
           onSubmit={handleSubmit}
-          className="bg-gray-200 rounded-xl shadow-sm p-8 border border-gray-300"
+          className="bg-white/10 backdrop-blur-lg rounded-xl shadow-sm p-6 border border-white/20"
         >
-          {/* Title */}
           <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Complaint Title <span className="text-red-500">*</span>
+            <label className="block  text-sm font-semibold text-white mb-2">
+              Complaint Title <span className="text-white">*</span>
             </label>
             <input
               type="text"
@@ -630,21 +646,19 @@ const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
               value={formData.title}
               onChange={handleInputChange}
               placeholder="Brief description of the issue"
-              className={`w-full px-4 py-3 border ${
-                errors.title ? "border-red-500" : "border-gray-400"
-              } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+              className={`w-full px-4 py-3 text-white border ${
+                errors.title ? "border-red-500" : "border-white/20"
+              } rounded-lg focus:ring-2 focus:ring-blue-500 placeholder-white/60 focus:border-transparent`}
             />
             {errors.title && (
               <p className="text-red-500 text-sm mt-1">{errors.title}</p>
             )}
           </div>
-
-          {/* Department */}
           <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Department <span className="text-red-500">*</span>
+            <label className="block text-sm font-semibold text-white mb-3">
+              Department <span className="text-white">*</span>
             </label>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5  gap-3">
               {departments.map((dept) => (
                 <button
                   key={dept.value}
@@ -652,16 +666,16 @@ const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
                   onClick={() =>
                     setFormData((prev) => ({ ...prev, dept: dept.value }))
                   }
-                  className={`p-4 rounded-lg hover:cursor-pointer border-2 transition ${
+                  className={`p-4 rounded-lg hover:cursor-pointer hover:bg-white/20 border-1 transition ${
                     formData.dept === dept.value
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-300 hover:border-gray-400"
+                      ? "border-blue-500 bg-gradient-to-r from-pink-400 to-purple-600 text-white shadow-lg"
+                      : "bg-white/10 text-gray-300 hover:bg-white/20"
                   }`}
                 >
                   <div className="text-3xl mb-2 hover:cursor-pointer">
                     {dept.icon}
                   </div>
-                  <div className="text-sm font-medium hover:cursor-pointer text-gray-700">
+                  <div className="text-sm font-medium hover:cursor-pointer text-white">
                     {dept.label}
                   </div>
                 </button>
@@ -672,9 +686,8 @@ const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
             )}
           </div>
 
-          {/* Description */}
           <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-white mb-2">
               Description
             </label>
             <textarea
@@ -683,14 +696,13 @@ const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
               onChange={handleInputChange}
               placeholder="Provide detailed information about the issue..."
               rows="4"
-              className="w-full px-4 py-3 border border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-4 py-3 border text-white border-white/20 placeholder-white/60 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
             />
           </div>
 
-          {/* Location */}
           <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Location <span className="text-red-500">*</span>
+            <label className="block text-sm font-semibold text-white mb-3">
+              Location <span className="text-white">*</span>
             </label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-3">
@@ -700,9 +712,9 @@ const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
                   value={formData.location.city}
                   onChange={handleInputChange}
                   placeholder="City"
-                  className={`w-full px-4 py-3 border ${
+                  className={`w-full px-4 text-white border-white/20 py-3 border ${
                     errors.city ? "border-red-500" : "border-gray-400"
-                  } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                  } rounded-lg focus:ring-2 focus:ring-blue-500  focus:border-transparent`}
                 />
                 {errors.city && (
                   <p className="text-red-500 text-sm mt-1">{errors.city}</p>
@@ -714,7 +726,7 @@ const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
                 value={formData.location.lat}
                 onChange={handleInputChange}
                 placeholder="Latitude (optional)"
-                className="px-4 py-3 border border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-4 py-3 border text-white border-white/20 placeholder-white/60 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <input
                 type="text"
@@ -722,12 +734,12 @@ const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
                 value={formData.location.lng}
                 onChange={handleInputChange}
                 placeholder="Longitude (optional)"
-                className="px-4 py-3 border border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-4 py-3 border border-white/20 text-white placeholder-white/60 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <button
                 type="button"
                 onClick={getCurrentLocation}
-                className="px-4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center justify-center gap-2"
+                className="px-4 py-3 bg-white/20 text-white rounded-lg hover:bg-white/20 transition flex items-center justify-center gap-2"
               >
                 <MapPin className="w-5 h-5 hover:cursor-pointer" />
                 Get Location
@@ -735,9 +747,8 @@ const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
             </div>
           </div>
 
-          {/* Priority */}
           <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
+            <label className="block text-sm font-semibold text-white mb-3">
               Priority Level
             </label>
             <div className="grid grid-cols-3 gap-4">
@@ -751,17 +762,17 @@ const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
                       priority: priority.value,
                     }))
                   }
-                  className={`p-4 rounded-lg hover:cursor-pointer border-2 transition ${
+                  className={`p-4 rounded-lg text-white hover:cursor-pointer border-2 transition ${
                     formData.priority === priority.value
-                      ? `border-${priority.color}-500 bg-${priority.color}-50`
-                      : "border-gray-400 hover:border-gray-500"
+                      ? `border-${priority.color}-500 bg-white/60`
+                      : "border-white/20 hover:border-gray-500"
                   }`}
                 >
                   <div
-                    className={`text-sm hover:cursor-pointer font-semibold ${
+                    className={`text-sm hover:cursor-pointer text-white font-semibold ${
                       formData.priority === priority.value
                         ? `text-${priority.color}-700`
-                        : "text-gray-700"
+                        : "text-white"
                     }`}
                   >
                     {priority.label}
@@ -771,23 +782,23 @@ const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
             </div>
           </div>
 
-          {/* Photo Upload */}
           <div className="mb-8">
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
+            <label className="block text-sm font-semibold text-white mb-3">
               Upload Photo (Optional)
             </label>
             {!photoPreview ? (
               <div className="border-2 border-dashed border-gray-400 rounded-lg p-8 text-center hover:border-blue-400 transition">
                 <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-sm text-gray-600 mb-2">
+                <p className="text-sm text-white mb-2">
                   Click to upload or drag and drop
                 </p>
-                <p className="text-xs text-gray-500 mb-4">PNG, JPG up to 5MB</p>
+                <p className="text-xs text-white mb-4">PNG, JPG up to 5MB</p>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handlePhotoChange}
                   className="hidden"
+                  name="photo"
                   id="photo-upload"
                 />
                 <label
@@ -818,12 +829,11 @@ const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
             )}
           </div>
 
-          {/* Submit Buttons */}
           <div className="flex gap-4">
             <button
               type="button"
               onClick={onBack}
-              className="flex-1 px-6 py-3 border-2 hover:cursor-pointer border-gray-400 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition"
+              className="flex-1 px-6 py-3 border-2 hover:cursor-pointer border-white/20 text-white font-semibold rounded-lg hover:bg-white/20 transition"
             >
               Cancel
             </button>
@@ -841,10 +851,9 @@ const RaiseComplaintPage = ({ onBack, userData, setComplaints }) => {
   );
 };
 
-// Complaint Detail View Component
 const ComplaintDetailView = ({ complaint, onBack }) => {
   const [newRemark, setNewRemark] = useState("");
-
+  const [isSubmittingRemark, setIsSubmittingRemark] = useState(false);
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
       year: "numeric",
@@ -918,36 +927,54 @@ const ComplaintDetailView = ({ complaint, onBack }) => {
       case "low":
         return "bg-green-50 text-green-700 border-green-200";
       default:
-        return "bg-gray-50 text-gray-700 border-gray-200";
+        return "bg-gray-50 text-white border-gray-200";
     }
   };
 
-  const handleAddRemark = () => {
-    if (newRemark.trim()) {
-      console.log("Adding remark:", newRemark);
-      // Here you would typically make an API call to add the remark
-      alert("Remark added successfully!");
-      setNewRemark("");
+const handleAddRemark = async () => {
+    if (!newRemark.trim()) return;
+
+    setIsSubmittingRemark(true);
+    try {
+      await axios.post(
+        `http://localhost:3000/api/complaints/remark/${complaint._id}`,
+        {
+          by: 'Staff',
+          message: newRemark,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem('token'),
+          },
+        }
+      );
+      alert('Remark added successfully!');
+      setNewRemark('');
+      window.location.reload();
+    } catch (error) {
+      console.error('Error adding remark:', error);
+      alert('Failed to add remark. Please try again.');
+    } finally {
+      setIsSubmittingRemark(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900">
+      <header className="w-full bg-black/20 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
             <button
               onClick={onBack}
-              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+              className="p-2 text-white hover:bg-white/10 rounded-lg transition"
             >
               <ArrowLeft className="w-6 h-6" />
             </button>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-orange-400">
                 Complaint Details
               </h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-white mt-1">
                 Ticket ID: {complaint.ticketId}
               </p>
             </div>
@@ -967,11 +994,9 @@ const ComplaintDetailView = ({ complaint, onBack }) => {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Complaint Info Card */}
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-sm p-6 border border-white/20">
+              <h2 className="text-2xl font-bold text-white mb-4">
                 {complaint.title}
               </h2>
 
@@ -990,10 +1015,10 @@ const ComplaintDetailView = ({ complaint, onBack }) => {
 
               {complaint.description && (
                 <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                  <h3 className="text-sm font-semibold text-white mb-2">
                     Description
                   </h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-white leading-relaxed">
                     {complaint.description}
                   </p>
                 </div>
@@ -1001,7 +1026,7 @@ const ComplaintDetailView = ({ complaint, onBack }) => {
 
               {complaint.photoUrl && (
                 <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                  <h3 className="text-sm font-semibold text-white mb-2">
                     Attached Photo
                   </h3>
                   <img
@@ -1014,7 +1039,7 @@ const ComplaintDetailView = ({ complaint, onBack }) => {
 
               {complaint.staffresolveproof?.photoUrlupdated && (
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                  <h3 className="text-sm font-semibold text-white mb-2">
                     Resolution Proof
                   </h3>
                   <img
@@ -1025,16 +1050,14 @@ const ComplaintDetailView = ({ complaint, onBack }) => {
                 </div>
               )}
             </div>
-
-            {/* Remarks Section */}
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-sm p-6 border border-white/20">
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                 <MessageSquare className="w-5 h-5" />
                 Remarks & Updates
               </h3>
 
               {complaint.remarks.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No remarks yet</p>
+                <p className="text-white text-center py-8">No remarks yet</p>
               ) : (
                 <div className="space-y-4 mb-6">
                   {complaint.remarks.map((remark, index) => (
@@ -1058,15 +1081,13 @@ const ComplaintDetailView = ({ complaint, onBack }) => {
                           {formatDate(remark.date)}
                         </span>
                       </div>
-                      <p className="text-gray-700">{remark.message}</p>
+                      <p className="text-white">{remark.message}</p>
                     </div>
                   ))}
                 </div>
               )}
-
-              {/* Add Remark */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-white mb-2">
                   Add a Remark
                 </label>
                 <textarea
@@ -1074,7 +1095,7 @@ const ComplaintDetailView = ({ complaint, onBack }) => {
                   onChange={(e) => setNewRemark(e.target.value)}
                   placeholder="Type your remark here..."
                   rows="3"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 border placeholder-white/60 text-white border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 />
                 <button
                   onClick={handleAddRemark}
@@ -1086,19 +1107,17 @@ const ComplaintDetailView = ({ complaint, onBack }) => {
             </div>
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Timeline Card */}
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Timeline</h3>
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-sm p-6 border border-white/20">
+              <h3 className="text-lg font-bold text-white mb-4">Timeline</h3>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-sm font-semibold text-white">
                       Complaint Raised
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-white">
                       {formatDate(complaint.createdAt)}
                     </p>
                   </div>
@@ -1107,7 +1126,7 @@ const ComplaintDetailView = ({ complaint, onBack }) => {
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p className="text-sm font-semibold text-white">
                         Assigned to Staff
                       </p>
                       <p className="text-xs text-gray-500">
@@ -1120,7 +1139,7 @@ const ComplaintDetailView = ({ complaint, onBack }) => {
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p className="text-sm font-semibold text-white">
                         Due Date
                       </p>
                       <p className="text-xs text-gray-500">
@@ -1133,25 +1152,23 @@ const ComplaintDetailView = ({ complaint, onBack }) => {
                 )}
               </div>
             </div>
-
-            {/* Location Card */}
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-sm p-6 border border-white/20">
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                 <MapPin className="w-5 h-5" />
                 Location
               </h3>
               <div className="space-y-2">
-                <p className="text-gray-700">
+                <p className="text-white">
                   <span className="font-semibold">City:</span>{" "}
                   {complaint.location.city}
                 </p>
                 {complaint.location.lat && complaint.location.lng && (
                   <>
-                    <p className="text-gray-700">
+                    <p className="text-white">
                       <span className="font-semibold">Latitude:</span>{" "}
                       {complaint.location.lat}
                     </p>
-                    <p className="text-gray-700">
+                    <p className="text-white">
                       <span className="font-semibold">Longitude:</span>{" "}
                       {complaint.location.lng}
                     </p>
@@ -1168,34 +1185,33 @@ const ComplaintDetailView = ({ complaint, onBack }) => {
               </div>
             </div>
 
-            {/* Additional Info Card */}
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-sm p-6 border border-white/20">
+              <h3 className="text-lg font-bold text-white mb-4">
                 Additional Information
               </h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs text-gray-500">Ticket ID</p>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-xs text-white">Ticket ID</p>
+                  <p className="text-sm font-semibold text-white">
                     {complaint.ticketId}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Department</p>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-xs text-white">Department</p>
+                  <p className="text-sm font-semibold text-white">
                     {getDeptLabel(complaint.dept)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Priority</p>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-xs text-white">Priority</p>
+                  <p className="text-sm font-semibold text-white">
                     {complaint.priority.toUpperCase()}
                   </p>
                 </div>
                 {complaint.assignedStaffId && (
                   <div>
-                    <p className="text-xs text-gray-500">Assigned Staff ID</p>
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-xs text-white">Assigned Staff ID</p>
+                    <p className="text-sm font-semibold text-white">
                       {complaint.assignedStaffId}
                     </p>
                   </div>
@@ -1210,3 +1226,59 @@ const ComplaintDetailView = ({ complaint, onBack }) => {
 };
 
 export default CitizenDashboard;
+
+const ActivityBell = ({ userType }) => {
+  const [open, setOpen] = React.useState(false);
+  const [items, setItems] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+
+  const fetchActivity = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`http://localhost:3000/api/activity/${userType}`, {
+        headers: { Authorization: localStorage.getItem("token") },
+      });
+      setItems(res.data.items || []);
+    } catch (e) {
+      console.error("Failed to fetch activity:", e);
+      alert("Failed to fetch activity. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (open) fetchActivity();
+  }, [open]);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="relative p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition"
+      >
+        <Bell className="w-6 h-6" />
+        {items.length > 0 && <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>}
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-2 w-80 bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 z-50 shadow-lg rounded-lg">
+          <div className="p-3 border-b border-white/10 text-white font-semibold">Recent Activity</div>
+          <div className="max-h-80 overflow-y-auto">
+            {loading ? (
+              <div className="p-4 text-white/70">Loading...</div>
+            ) : items.length === 0 ? (
+              <div className="p-4 text-white/60">No recent activity</div>
+            ) : (
+              items.map((a) => (
+                <div key={a._id} className="p-3 border-b border-white/10 text-white/90 text-sm">
+                  <div>{a.message}</div>
+                  <div className="text-xs text-white/50">{new Date(a.createdAt).toLocaleString()}</div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
