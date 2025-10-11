@@ -229,6 +229,7 @@ Complaintrouter.post("/remark/:complaintid", async (req, res) => {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         console.log(decoded);
+        const usertype=by;
         const models = { Staffmodel, Adminmodel, Citizenmodel };
         const modelName = `${by[0].toUpperCase() + by.slice(1).toLowerCase()}model`;
         const userModel = models[modelName];
@@ -242,7 +243,7 @@ Complaintrouter.post("/remark/:complaintid", async (req, res) => {
         if (!complaint) return res.status(404).send({ msg: "Complaint not found" });
 
         const remark = {
-            by: "Staff",
+            by: by,
             message: message,
         };
 
