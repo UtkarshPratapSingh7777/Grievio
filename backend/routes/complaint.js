@@ -23,9 +23,9 @@ const uploadFile = async (filePath) => {
     }
 };
 cloudinary.config({
-    cloud_name: "YOUR CLOUDINARY CLOUD NAME",
-    api_key: "YOUR API KEY",
-    api_secret: "YOUR API SECRET"
+    cloud_name: "dercjeqeh",
+    api_key: "437499349635515",
+    api_secret: "ckdXuNCb0ols9G4qeoNqT_yTBJg"
 });
 Complaintrouter.post("/create", citizenTokenVerify, upload.single("photo"), async (req, res) => {
     try {
@@ -45,7 +45,7 @@ Complaintrouter.post("/create", citizenTokenVerify, upload.single("photo"), asyn
                 const uploadedUrl = await uploadFile(req.file.path);
                 req.body.photoUrl = uploadedUrl;
             } finally {
-                fs.unlink(req.file.path, () => {});
+                fs.unlink(req.file.path, () => { });
             }
         }
 
@@ -75,7 +75,6 @@ Complaintrouter.post("/create", citizenTokenVerify, upload.single("photo"), asyn
                     photoUrlupdated: null
                 }
             });
-            // Activity: complaint created
             await Activitymodel.create({
                 userType: "citizen",
                 userId: req.citizen._id,
@@ -133,7 +132,7 @@ Complaintrouter.put("/assign/:complaintid", adminTokenVerify, async (req, res) =
         return res.status(400).send({ msg: "No staff available in your dept and location" });
     }
     const staff = staffs[0];
-    
+
     try {
         const complaint = await Complaintmodel.findOne({ _id: complaintid, adminId: req.admin._id });
         if (!complaint) {
@@ -148,7 +147,6 @@ Complaintrouter.put("/assign/:complaintid", adminTokenVerify, async (req, res) =
         await complaint.save();
         staff.taskCount += 1;
         await staff.save();
-        // Activity: assigned to staff
         await Activitymodel.create({
             userType: "staff",
             userId: staff._id,
@@ -168,7 +166,7 @@ Complaintrouter.put("/resolvecomplaintstaff/:complaintid", staffTokenVerify, upl
         try {
             uploadedUrl = await uploadFile(req.file.path);
         } finally {
-            fs.unlink(req.file.path, () => {});
+            fs.unlink(req.file.path, () => { });
         }
     }
 
@@ -188,7 +186,6 @@ Complaintrouter.put("/resolvecomplaintstaff/:complaintid", staffTokenVerify, upl
 
         req.staff.taskCount -= 1;
         await req.staff.save();
-        // Activity: staff resolved
         await Activitymodel.create({
             userType: "staff",
             userId: req.staff._id,
@@ -210,7 +207,6 @@ Complaintrouter.put("/resolvecomplaintadmin/:complaintid", adminTokenVerify, asy
         if (complaint.status === "resolved-stafflevel") {
             complaint.status = "resolved-adminlevel";
             await complaint.save();
-            // Activity: admin verified
             await Activitymodel.create({
                 userType: "admin",
                 userId: req.admin._id,
@@ -223,5 +219,40 @@ Complaintrouter.put("/resolvecomplaintadmin/:complaintid", adminTokenVerify, asy
         res.status(500).send({ msg: "Failed to resolve complaint", error: err.message });
     }
 });
+Complaintrouter.post("/remark/:complaintid", async (req, res) => {
+    let { message, by } = req.body;
+    const complaintId = req.params.complaintid
+    const token = req.headers['authorization'];
+    if (!token) {
+        res.status(400).send({ msg: "unauthenticated access attempt" })
+    }
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        console.log(decoded);
+        const models = { Staffmodel, Adminmodel, Citizenmodel };
+        const modelName = `${by[0].toUpperCase() + by.slice(1).toLowerCase()}model`;
+        const userModel = models[modelName];
+        console.log(userModel)
+        if (!userModel) return res.status(400).send({ msg: "Invalid user type" });
 
+        const user = await userModel.findById(decoded.StaffId);
+        if (!user) return res.status(404).send({ msg: "User not found" });
+
+        const complaint = await Complaintmodel.findById(complaintId);
+        if (!complaint) return res.status(404).send({ msg: "Complaint not found" });
+
+        const remark = {
+            by: "Staff",
+            message: message,
+        };
+
+        complaint.remarks.push(remark);
+        await complaint.save();
+
+        return res.status(200).send({ msg: "Remark added successfully" });
+    } catch (e) {
+        console.error(e);
+        return res.status(400).send({ msg: "Remark addition request denied" });
+    }
+})
 module.exports = Complaintrouter;
