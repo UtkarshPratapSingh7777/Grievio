@@ -23,9 +23,9 @@ const uploadFile = async (filePath) => {
     }
 };
 cloudinary.config({
-    cloud_name: "dercjeqeh",
-    api_key: "437499349635515",
-    api_secret: "ckdXuNCb0ols9G4qeoNqT_yTBJg"
+    cloud_name: "",
+    api_key: "",
+    api_secret: ""
 });
 Complaintrouter.post("/create", citizenTokenVerify, upload.single("photo"), async (req, res) => {
     try {
