@@ -14,7 +14,7 @@ const Navbar = () => {
             <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xl">CC</span>
             </div>
-            <span className="text-orange-400 font-bold text-2xl">Caravan Chronicle</span>
+            <span className="text-orange-400 font-bold text-2xl">Grievio</span>
           </Link>
           
           <div className="hidden md:flex space-x-8">
