@@ -75,7 +75,7 @@ const LandingPage = () => {
       <div className="py-20 px-4 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-y border-white/10">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-bold text-white mb-6">Ready to Get Started?</h2>
-          <p className="text-xl text-white/80 mb-8">Join The Caravan Chronicle and help keep our traveling city running smoothly.</p>
+          <p className="text-xl text-white/80 mb-8">Join Grievio and help keep our traveling city running smoothly.</p>
           <button 
             onClick={() => navigate('/signup')}
             className="px-8 py-4 bg-white text-purple-900 rounded-xl text-lg font-semibold hover:shadow-2xl hover:scale-105 transition cursor-pointer"
@@ -87,7 +87,7 @@ const LandingPage = () => {
 
       <footer className="py-12 px-4 bg-black/40">
         <div className="max-w-7xl mx-auto text-center text-white/60">
-          <p>&copy; 2025 Caravan Chronicle. All rights reserved.</p>
+          <p>&copy; 2025 Grievio. All rights reserved.</p>
           <p className="mt-2">Built for the Circus of Wonders traveling community.</p>
         </div>
       </footer>
